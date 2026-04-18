@@ -3,14 +3,15 @@ import numpy as np
 import tensorflow as tf
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from PIL import Image
 import io
 
 app = FastAPI(title="Skin Disease Predictor")
 
-# ✅ CORS (frontend connect karega)
+# ✅ CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -26,7 +27,7 @@ if not os.path.exists(MODEL_PATH):
 
 try:
     model = tf.keras.models.load_model(MODEL_PATH)
-    print("✅ Model Loaded")
+    print(f"✅ Model Loaded from {MODEL_PATH}")
 except Exception as e:
     print("❌ Model Error:", e)
     model = None
@@ -52,6 +53,11 @@ human_labels = {
     'sc_Scabies_sarna': 'Scabies'
 }
 
+# ✅ Root route (important for Render)
+@app.get("/")
+def home():
+    return {"message": "Backend is running 🚀"}
+
 # ✅ Image preprocess
 def preprocess_image(image_bytes):
     img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
@@ -59,7 +65,7 @@ def preprocess_image(image_bytes):
     img_array = np.array(img) / 255.0
     return np.expand_dims(img_array, axis=0)
 
-# ✅ API
+# ✅ Prediction API
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
     if model is None:
@@ -71,6 +77,7 @@ async def predict(file: UploadFile = File(...)):
         preds = model.predict(img)
 
         idx = np.argmax(preds[0])
+
         return {
             "prediction": human_labels[class_names[idx]],
             "confidence": float(preds[0][idx]) * 100
@@ -79,7 +86,12 @@ async def predict(file: UploadFile = File(...)):
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
-# ✅ Static frontend serve karega
-app.mount("/", StaticFiles(directory=".", html=True), name="static")
+# ✅ Optional: static folder (safe way)
+if os.path.exists("static"):
+    app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# ❌ Flask wala part hata diya (important)
+# ✅ Local run only
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.environ.get("PORT", 8080))
+    uvicorn.run(app, host="0.0.0.0", port=port)
