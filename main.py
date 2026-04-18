@@ -99,9 +99,7 @@ app.mount("/", StaticFiles(directory=".", html=True), name="static")
 
 if __name__ == "__main__":
     import uvicorn
-    # Using 127.0.0.1 specifically for Windows local access
-    print("\n" + "="*50)
-    print("SERVERS STARTING... PLEASE WAIT 10 SECONDS")
-    print("URL: http://127.0.0.1:8080")
-    print("="*50 + "\n")
-    uvicorn.run(app, host="127.0.0.1", port=8080)
+    # Get port from environment variable for deployment (default to 8080 locally)
+    port = int(os.environ.get("PORT", 8080))
+    print(f"\nSERVER STARTING ON PORT {port}")
+    uvicorn.run(app, host="0.0.0.0", port=port)

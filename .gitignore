@@ -1,0 +1,7 @@
+Raw_Dataset/
+.ipynb_checkpoints/
+__pycache__/
+*.ipynb
+test.jpg
+test.jpg.webp
+best_skin_model.h5
