@@ -52,8 +52,8 @@ skin-disease-predictor/
 2. Run Flask app:
    python app.py
 
-3. Open browser:
-   http://127.0.0.1:5000/
+3. Open browser
+4. http://127.0.0.1:8080/
 
 ----------------------------------------------------
 
