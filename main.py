@@ -8,9 +8,9 @@ from fastapi.responses import JSONResponse
 from PIL import Image
 import io
 
-app = FastAPI(title="SkinD | Skin Disease Predictor")
+app = FastAPI(title="Skin Disease Predictor")
 
-# Enable CORS for frontend interaction
+# ✅ CORS (frontend connect karega)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -19,21 +19,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load the model
-# Using the .keras format which is more modern
+# ✅ Model Load
 MODEL_PATH = "skin_model.keras"
 if not os.path.exists(MODEL_PATH):
-    # Fallback to .h5 if .keras doesn't exist
     MODEL_PATH = "best_skin_model.h5"
 
 try:
     model = tf.keras.models.load_model(MODEL_PATH)
-    print(f"Loaded model from {MODEL_PATH}")
+    print("✅ Model Loaded")
 except Exception as e:
-    print(f"Error loading model: {e}")
+    print("❌ Model Error:", e)
     model = None
 
-# Class names exactly as in the notebook
+# ✅ Classes
 class_names = [
     'ch_Chickenpox_Varicela',
     'hz_Herpes',
@@ -44,62 +42,44 @@ class_names = [
     'sc_Scabies_sarna'
 ]
 
-# Human-readable labels
 human_labels = {
-    'ch_Chickenpox_Varicela': 'Chickenpox (Varicella)',
+    'ch_Chickenpox_Varicela': 'Chickenpox',
     'hz_Herpes': 'Herpes',
     'lp_Lupus': 'Lupus',
-    'me_Melanoma': 'Melanoma (Skin Cancer)',
+    'me_Melanoma': 'Melanoma',
     'mk_Monkeypox': 'Monkeypox',
     'ms_Measles_Sarampion': 'Measles',
     'sc_Scabies_sarna': 'Scabies'
 }
 
+# ✅ Image preprocess
 def preprocess_image(image_bytes):
-    img = Image.open(io.BytesIO(image_bytes))
-    img = img.convert("RGB")
+    img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
     img = img.resize((224, 224))
     img_array = np.array(img) / 255.0
-    img_array = np.expand_dims(img_array, axis=0)
-    return img_array
+    return np.expand_dims(img_array, axis=0)
 
+# ✅ API
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
     if model is None:
         return JSONResponse(content={"error": "Model not loaded"}, status_code=500)
-    
+
     try:
         content = await file.read()
-        processed_image = preprocess_image(content)
-        
-        predictions = model.predict(processed_image)
-        
-        # Get top 3 predictions
-        top_indices = np.argsort(predictions[0])[-3:][::-1]
-        
-        results = []
-        for idx in top_indices:
-            name = class_names[idx]
-            results.append({
-                "class": human_labels.get(name, name),
-                "confidence": float(predictions[0][idx]) * 100
-            })
-            
+        img = preprocess_image(content)
+        preds = model.predict(img)
+
+        idx = np.argmax(preds[0])
         return {
-            "prediction": results[0]["class"],
-            "confidence": results[0]["confidence"],
-            "all_predictions": results
+            "prediction": human_labels[class_names[idx]],
+            "confidence": float(preds[0][idx]) * 100
         }
-        
+
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
-# Serve static files (HTML, CSS, JS)
+# ✅ Static frontend serve karega
 app.mount("/", StaticFiles(directory=".", html=True), name="static")
 
-if __name__ == "__main__":
-    import uvicorn
-    # Get port from environment variable for deployment (default to 8080 locally)
-    port = int(os.environ.get("PORT", 8080))
-    print(f"\nSERVER STARTING ON PORT {port}")
-    uvicorn.run(app, host="0.0.0.0", port=port)
+# ❌ Flask wala part hata diya (important)
