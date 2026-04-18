@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkinD | Skin Disease Predictor</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <nav>
+        <div class="logo">Skin<span>D</span></div>
+        <div class="nav-links">
+            <a href="#">Home</a>
+        </div>
+    </nav>
+
+    <main>
+        <section class="hero">
+            <h1>Smarter Skin <span>Diagnosis</span></h1>
+            <p>Upload a clear photo of the skin area. Our AI will analyze it to provide an instant preliminary prediction for common skin conditions.</p>
+        </section>
+
+        <section class="upload-container">
+            <div class="glass-card" id="drop-zone">
+                <input type="file" id="file-input" accept="image/*" hidden>
+                <div class="upload-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                </div>
+                <h3>Drag & Drop or Click</h3>
+                <p>Supports JPG, PNG, WEBP (Max 5MB)</p>
+                <button class="btn-primary" onclick="document.getElementById('file-input').click()">Select Image</button>
+            </div>
+
+            <div class="glass-card preview-card hidden" id="preview-container">
+                <div class="image-preview">
+                    <img id="selected-image" src="" alt="Selected Preview">
+                </div>
+                <div class="action-buttons">
+                    <button class="btn-secondary" id="reset-btn">Change</button>
+                    <button class="btn-primary" id="analyze-btn">Analyze Now</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="result-section hidden" id="result-container">
+            <div class="glass-card result-card">
+                <div class="loader hidden" id="loader">
+                    <div class="spinner"></div>
+                    <p>AI is analyzing your skin...</p>
+                </div>
+
+                <div id="result-content">
+                    <div class="prediction-header">
+                        <h2>Analysis Result</h2>
+                        <div class="confidence-badge" id="main-confidence">0% Confidence</div>
+                    </div>
+                    
+                    <div class="main-result">
+                        <span class="label">Primary Diagnosis</span>
+                        <h1 id="predicted-class">Disease Name</h1>
+                    </div>
+
+                    <div class="other-possibilities">
+                        <h3>Other Possibilities</h3>
+                        <div id="secondary-results">
+                            <!-- JS will inject bars here -->
+                        </div>
+                    </div>
+
+                    <div class="disclaimer">
+                        <p><strong>Disclaimer:</strong> This is an AI-generated analysis and should NOT be taken as a final medical diagnosis. Please consult a qualified dermatologist for a professional evaluation.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 SkinD Project. Built with Advanced AI for Skin Health.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
